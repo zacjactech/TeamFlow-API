@@ -1,0 +1,60 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model Organization {
+  id         String   @id @default(uuid())
+  name       String
+  created_at DateTime @default(now())
+
+  users User[]
+  tasks Task[]
+
+  @@index([name])
+}
+
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  password_hash   String
+  role            Role     @default(MEMBER)
+  organization_id String
+  created_at      DateTime @default(now())
+
+  organization Organization @relation(fields: [organization_id], references: [id])
+  tasks        Task[]
+
+  @@index([organization_id])
+}
+
+model Task {
+  id              String     @id @default(uuid())
+  title           String
+  description     String?
+  status          TaskStatus @default(TODO)
+  organization_id String
+  created_by      String
+  created_at      DateTime   @default(now())
+
+  organization Organization @relation(fields: [organization_id], references: [id])
+  user         User         @relation(fields: [created_by], references: [id])
+
+  @@index([organization_id])
+  @@index([status])
+}
