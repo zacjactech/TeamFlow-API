@@ -4,8 +4,8 @@ export declare class OrganizationsController {
     constructor(organizationsService: OrganizationsService);
     getOrg(orgId: string): Promise<{
         _count: {
-            tasks: number;
             users: number;
+            tasks: number;
         };
     } & {
         id: string;

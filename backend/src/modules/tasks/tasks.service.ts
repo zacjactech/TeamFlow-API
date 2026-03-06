@@ -14,10 +14,20 @@ export class TasksService {
     async create(dto: CreateTaskDto, userId: string, organizationId: string) {
         return this.prisma.task.create({
             data: {
-                ...dto,
+                title: dto.title,
+                description: dto.description,
+                assigned_to: dto.assigned_to,
                 created_by: userId,
                 organization_id: organizationId,
             },
+            include: {
+                creator: {
+                    select: { id: true, email: true }
+                },
+                assignee: {
+                    select: { id: true, email: true }
+                }
+            }
         });
     }
 
@@ -25,7 +35,13 @@ export class TasksService {
         return this.prisma.task.findMany({
             where: { organization_id: organizationId },
             include: {
-                user: {
+                creator: {
+                    select: {
+                        id: true,
+                        email: true,
+                    },
+                },
+                assignee: {
                     select: {
                         id: true,
                         email: true,
@@ -39,6 +55,10 @@ export class TasksService {
     async findOne(id: string, organizationId: string) {
         const task = await this.prisma.task.findUnique({
             where: { id },
+            include: {
+                creator: { select: { id: true, email: true } },
+                assignee: { select: { id: true, email: true } },
+            }
         });
 
         if (!task || task.organization_id !== organizationId) {
@@ -54,14 +74,16 @@ export class TasksService {
         return this.prisma.task.update({
             where: { id: task.id },
             data: dto,
+            include: {
+                creator: { select: { id: true, email: true } },
+                assignee: { select: { id: true, email: true } },
+            }
         });
     }
 
     async remove(id: string, organizationId: string, userRole: Role) {
         const task = await this.findOne(id, organizationId);
 
-        // Only Admin can delete tasks (requirement: Members cannot delete other users or access admin endpoints.
-        // Usually implies delete is restricted if not explicitly allowed).
         if (userRole !== Role.ADMIN) {
             throw new ForbiddenException('Only Admins can delete tasks');
         }

@@ -5,43 +5,78 @@ export declare class TasksController {
     private readonly tasksService;
     constructor(tasksService: TasksService);
     create(dto: CreateTaskDto, userId: string, orgId: string): Promise<{
-        id: string;
-        organization_id: string;
-        created_at: Date;
-        description: string | null;
-        title: string;
-        status: import("@prisma/client").$Enums.TaskStatus;
-        created_by: string;
-    }>;
-    findAll(orgId: string): Promise<({
-        user: {
-            email: string;
+        creator: {
             id: string;
+            email: string;
         };
+        assignee: {
+            id: string;
+            email: string;
+        } | null;
     } & {
         id: string;
         organization_id: string;
         created_at: Date;
         description: string | null;
         title: string;
+        assigned_to: string | null;
+        status: import("@prisma/client").$Enums.TaskStatus;
+        created_by: string;
+    }>;
+    findAll(orgId: string): Promise<({
+        creator: {
+            id: string;
+            email: string;
+        };
+        assignee: {
+            id: string;
+            email: string;
+        } | null;
+    } & {
+        id: string;
+        organization_id: string;
+        created_at: Date;
+        description: string | null;
+        title: string;
+        assigned_to: string | null;
         status: import("@prisma/client").$Enums.TaskStatus;
         created_by: string;
     })[]>;
     findOne(id: string, orgId: string): Promise<{
+        creator: {
+            id: string;
+            email: string;
+        };
+        assignee: {
+            id: string;
+            email: string;
+        } | null;
+    } & {
         id: string;
         organization_id: string;
         created_at: Date;
         description: string | null;
         title: string;
+        assigned_to: string | null;
         status: import("@prisma/client").$Enums.TaskStatus;
         created_by: string;
     }>;
     update(id: string, dto: UpdateTaskDto, orgId: string): Promise<{
+        creator: {
+            id: string;
+            email: string;
+        };
+        assignee: {
+            id: string;
+            email: string;
+        } | null;
+    } & {
         id: string;
         organization_id: string;
         created_at: Date;
         description: string | null;
         title: string;
+        assigned_to: string | null;
         status: import("@prisma/client").$Enums.TaskStatus;
         created_by: string;
     }>;
@@ -51,6 +86,7 @@ export declare class TasksController {
         created_at: Date;
         description: string | null;
         title: string;
+        assigned_to: string | null;
         status: import("@prisma/client").$Enums.TaskStatus;
         created_by: string;
     }>;

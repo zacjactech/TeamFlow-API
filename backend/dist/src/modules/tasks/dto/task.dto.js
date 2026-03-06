@@ -12,40 +12,60 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateTaskDto = exports.CreateTaskDto = void 0;
 const class_validator_1 = require("class-validator");
 const client_1 = require("@prisma/client");
+const swagger_1 = require("@nestjs/swagger");
 class CreateTaskDto {
     title;
     description;
+    assigned_to;
 }
 exports.CreateTaskDto = CreateTaskDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Implement login' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTaskDto.prototype, "title", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Use JWT for authentication' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateTaskDto.prototype, "description", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'uuid-of-user' }),
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateTaskDto.prototype, "assigned_to", void 0);
 class UpdateTaskDto {
     title;
     description;
     status;
+    assigned_to;
 }
 exports.UpdateTaskDto = UpdateTaskDto;
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Implement login' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateTaskDto.prototype, "title", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Use JWT for authentication' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateTaskDto.prototype, "description", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: client_1.TaskStatus }),
     (0, class_validator_1.IsEnum)(client_1.TaskStatus),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateTaskDto.prototype, "status", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'uuid-of-user' }),
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTaskDto.prototype, "assigned_to", void 0);
 //# sourceMappingURL=task.dto.js.map

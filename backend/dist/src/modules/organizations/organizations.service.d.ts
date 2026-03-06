@@ -4,8 +4,8 @@ export declare class OrganizationsService {
     constructor(prisma: PrismaService);
     findOne(id: string): Promise<{
         _count: {
-            tasks: number;
             users: number;
+            tasks: number;
         };
     } & {
         id: string;

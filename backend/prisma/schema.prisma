@@ -38,7 +38,8 @@ model User {
   created_at      DateTime @default(now())
 
   organization Organization @relation(fields: [organization_id], references: [id])
-  tasks        Task[]
+  created_tasks Task[]      @relation("CreatedTasks")
+  assigned_tasks Task[]     @relation("AssignedTasks")
 
   @@index([organization_id])
 }
@@ -50,10 +51,12 @@ model Task {
   status          TaskStatus @default(TODO)
   organization_id String
   created_by      String
+  assigned_to     String?
   created_at      DateTime   @default(now())
 
   organization Organization @relation(fields: [organization_id], references: [id])
-  user         User         @relation(fields: [created_by], references: [id])
+  creator      User         @relation("CreatedTasks", fields: [created_by], references: [id])
+  assignee     User?        @relation("AssignedTasks", fields: [assigned_to], references: [id])
 
   @@index([organization_id])
   @@index([status])

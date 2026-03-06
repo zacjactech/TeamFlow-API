@@ -21,17 +21,33 @@ let TasksService = class TasksService {
     async create(dto, userId, organizationId) {
         return this.prisma.task.create({
             data: {
-                ...dto,
+                title: dto.title,
+                description: dto.description,
+                assigned_to: dto.assigned_to,
                 created_by: userId,
                 organization_id: organizationId,
             },
+            include: {
+                creator: {
+                    select: { id: true, email: true }
+                },
+                assignee: {
+                    select: { id: true, email: true }
+                }
+            }
         });
     }
     async findAllInOrg(organizationId) {
         return this.prisma.task.findMany({
             where: { organization_id: organizationId },
             include: {
-                user: {
+                creator: {
+                    select: {
+                        id: true,
+                        email: true,
+                    },
+                },
+                assignee: {
                     select: {
                         id: true,
                         email: true,
@@ -44,6 +60,10 @@ let TasksService = class TasksService {
     async findOne(id, organizationId) {
         const task = await this.prisma.task.findUnique({
             where: { id },
+            include: {
+                creator: { select: { id: true, email: true } },
+                assignee: { select: { id: true, email: true } },
+            }
         });
         if (!task || task.organization_id !== organizationId) {
             throw new common_1.NotFoundException('Task not found');
@@ -55,6 +75,10 @@ let TasksService = class TasksService {
         return this.prisma.task.update({
             where: { id: task.id },
             data: dto,
+            include: {
+                creator: { select: { id: true, email: true } },
+                assignee: { select: { id: true, email: true } },
+            }
         });
     }
     async remove(id, organizationId, userRole) {

@@ -20,6 +20,7 @@ const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const get_user_decorator_1 = require("../../common/decorators/get-user.decorator");
 const client_1 = require("@prisma/client");
+const invite_member_dto_1 = require("./dto/invite-member.dto");
 const swagger_1 = require("@nestjs/swagger");
 let UsersController = class UsersController {
     usersService;
@@ -28,6 +29,9 @@ let UsersController = class UsersController {
     }
     findAll(orgId) {
         return this.usersService.findAllInOrg(orgId);
+    }
+    invite(dto, orgId) {
+        return this.usersService.inviteMember(dto, orgId);
     }
     findMe(userId) {
         return this.usersService.findOne(userId);
@@ -45,6 +49,19 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Post)('invite'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Invite/Add a new member to the organization (Admin only)' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'User successfully created/invited' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden' }),
+    (0, swagger_1.ApiResponse)({ status: 409, description: 'Conflict - User already exists' }),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, get_user_decorator_1.GetUser)('organizationId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [invite_member_dto_1.InviteMemberDto, String]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "invite", null);
 __decorate([
     (0, common_1.Get)('me'),
     (0, swagger_1.ApiOperation)({ summary: 'Get current user profile' }),

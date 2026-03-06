@@ -1,10 +1,11 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { Role } from '@prisma/client';
+import { InviteMemberDto } from './dto/invite-member.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -26,6 +27,19 @@ export class UsersController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   findAll(@GetUser('organizationId') orgId: string) {
     return this.usersService.findAllInOrg(orgId);
+  }
+
+  @Post('invite')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Invite/Add a new member to the organization (Admin only)' })
+  @ApiResponse({ status: 201, description: 'User successfully created/invited' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 409, description: 'Conflict - User already exists' })
+  invite(
+    @Body() dto: InviteMemberDto,
+    @GetUser('organizationId') orgId: string,
+  ) {
+    return this.usersService.inviteMember(dto, orgId);
   }
 
   @Get('me')
