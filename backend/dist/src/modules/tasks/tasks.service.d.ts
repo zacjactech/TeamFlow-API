@@ -6,12 +6,12 @@ export declare class TasksService {
     constructor(prisma: PrismaService);
     create(dto: CreateTaskDto, userId: string, organizationId: string): Promise<{
         creator: {
-            id: string;
             email: string;
+            id: string;
         };
         assignee: {
-            id: string;
             email: string;
+            id: string;
         } | null;
     } & {
         id: string;
@@ -25,12 +25,12 @@ export declare class TasksService {
     }>;
     findAllInOrg(organizationId: string): Promise<({
         creator: {
-            id: string;
             email: string;
+            id: string;
         };
         assignee: {
-            id: string;
             email: string;
+            id: string;
         } | null;
     } & {
         id: string;
@@ -44,12 +44,12 @@ export declare class TasksService {
     })[]>;
     findOne(id: string, organizationId: string): Promise<{
         creator: {
-            id: string;
             email: string;
+            id: string;
         };
         assignee: {
-            id: string;
             email: string;
+            id: string;
         } | null;
     } & {
         id: string;
@@ -63,12 +63,12 @@ export declare class TasksService {
     }>;
     update(id: string, dto: UpdateTaskDto, organizationId: string): Promise<{
         creator: {
-            id: string;
             email: string;
+            id: string;
         };
         assignee: {
-            id: string;
             email: string;
+            id: string;
         } | null;
     } & {
         id: string;

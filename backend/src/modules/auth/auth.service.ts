@@ -9,9 +9,12 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { Role, User as PrismaUser } from '@prisma/client';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -23,6 +26,7 @@ export class AuthService {
     });
 
     if (existingUser) {
+      this.logger.warn(`Registration failed: User ${dto.email} already exists`);
       throw new ConflictException('User already exists');
     }
 
@@ -48,6 +52,7 @@ export class AuthService {
       return { user, organization };
     });
 
+    this.logger.log(`User registered successfully: ${dto.email}`);
     return this.generateToken(result.user);
   }
 
@@ -66,9 +71,11 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
+      this.logger.warn(`Login failed: Invalid password for ${dto.email}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    this.logger.log(`User logged in successfully: ${dto.email}`);
     return this.generateToken(user);
   }
 

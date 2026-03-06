@@ -6,12 +6,12 @@ export declare class TasksController {
     constructor(tasksService: TasksService);
     create(dto: CreateTaskDto, userId: string, orgId: string): Promise<{
         creator: {
-            id: string;
             email: string;
+            id: string;
         };
         assignee: {
-            id: string;
             email: string;
+            id: string;
         } | null;
     } & {
         id: string;
@@ -25,12 +25,12 @@ export declare class TasksController {
     }>;
     findAll(orgId: string): Promise<({
         creator: {
-            id: string;
             email: string;
+            id: string;
         };
         assignee: {
-            id: string;
             email: string;
+            id: string;
         } | null;
     } & {
         id: string;
@@ -44,12 +44,12 @@ export declare class TasksController {
     })[]>;
     findOne(id: string, orgId: string): Promise<{
         creator: {
-            id: string;
             email: string;
+            id: string;
         };
         assignee: {
-            id: string;
             email: string;
+            id: string;
         } | null;
     } & {
         id: string;
@@ -63,12 +63,12 @@ export declare class TasksController {
     }>;
     update(id: string, dto: UpdateTaskDto, orgId: string): Promise<{
         creator: {
-            id: string;
             email: string;
+            id: string;
         };
         assignee: {
-            id: string;
             email: string;
+            id: string;
         } | null;
     } & {
         id: string;

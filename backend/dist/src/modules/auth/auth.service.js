@@ -41,6 +41,7 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var AuthService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
@@ -48,9 +49,11 @@ const jwt_1 = require("@nestjs/jwt");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
 const client_1 = require("@prisma/client");
-let AuthService = class AuthService {
+const common_2 = require("@nestjs/common");
+let AuthService = AuthService_1 = class AuthService {
     prisma;
     jwtService;
+    logger = new common_2.Logger(AuthService_1.name);
     constructor(prisma, jwtService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
@@ -60,6 +63,7 @@ let AuthService = class AuthService {
             where: { email: dto.email },
         });
         if (existingUser) {
+            this.logger.warn(`Registration failed: User ${dto.email} already exists`);
             throw new common_1.ConflictException('User already exists');
         }
         const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -79,6 +83,7 @@ let AuthService = class AuthService {
             });
             return { user, organization };
         });
+        this.logger.log(`User registered successfully: ${dto.email}`);
         return this.generateToken(result.user);
     }
     async login(dto) {
@@ -90,8 +95,10 @@ let AuthService = class AuthService {
         }
         const isPasswordValid = await bcrypt.compare(dto.password, user.password_hash);
         if (!isPasswordValid) {
+            this.logger.warn(`Login failed: Invalid password for ${dto.email}`);
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
+        this.logger.log(`User logged in successfully: ${dto.email}`);
         return this.generateToken(user);
     }
     generateToken(user) {
@@ -113,7 +120,7 @@ let AuthService = class AuthService {
     }
 };
 exports.AuthService = AuthService;
-exports.AuthService = AuthService = __decorate([
+exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         jwt_1.JwtService])

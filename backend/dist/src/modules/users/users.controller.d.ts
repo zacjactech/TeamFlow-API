@@ -4,20 +4,20 @@ export declare class UsersController {
     private usersService;
     constructor(usersService: UsersService);
     findAll(orgId: string): Promise<{
-        id: string;
         email: string;
+        id: string;
         role: import("@prisma/client").$Enums.Role;
         created_at: Date;
     }[]>;
     invite(dto: InviteMemberDto, orgId: string): Promise<{
-        id: string;
         email: string;
+        id: string;
         role: import("@prisma/client").$Enums.Role;
         created_at: Date;
     }>;
     findMe(userId: string): Promise<{
-        id: string;
         email: string;
+        id: string;
         role: import("@prisma/client").$Enums.Role;
         organization_id: string;
         created_at: Date;
