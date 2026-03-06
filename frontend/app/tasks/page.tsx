@@ -102,7 +102,18 @@ export default function TasksPage() {
         }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleEdit = (task: Task) => {
+        setEditingTask(task);
+        setFormData({
+            title: task.title,
+            description: task.description || '',
+            assigned_to: (task as any).assigned_to || '',
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = async (id: string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
         if (!confirm('Are you sure you want to delete this task?')) return;
         try {
             await api.delete(`/tasks/${id}`);
@@ -148,10 +159,17 @@ export default function TasksPage() {
                 ) : (
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {tasks.map((task: Task) => (
-                            <div key={task.id} className="bg-white rounded-lg shadow border border-gray-100 p-5 hover:shadow-md transition-shadow relative group">
+                            <div
+                                key={task.id}
+                                onClick={() => toggleStatus(task)}
+                                className="bg-white rounded-lg shadow border border-gray-100 p-5 hover:shadow-md transition-shadow relative group cursor-pointer"
+                            >
                                 <div className="flex justify-between items-start mb-4">
                                     <button
-                                        onClick={() => toggleStatus(task)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleStatus(task);
+                                        }}
                                         className={cn(
                                             "p-1 rounded-full",
                                             task.status === 'DONE' ? "text-emerald-500" : "text-gray-400 hover:text-indigo-500"
@@ -161,14 +179,9 @@ export default function TasksPage() {
                                     </button>
                                     <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
-                                            onClick={() => {
-                                                setEditingTask(task);
-                                                setFormData({
-                                                    title: task.title,
-                                                    description: task.description || '',
-                                                    assigned_to: (task as any).assigned_to || '',
-                                                });
-                                                setIsModalOpen(true);
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEdit(task);
                                             }}
                                             className="p-1 text-gray-400 hover:text-indigo-600"
                                         >
@@ -176,7 +189,7 @@ export default function TasksPage() {
                                         </button>
                                         {currentUser?.role === 'ADMIN' && (
                                             <button
-                                                onClick={() => handleDelete(task.id)}
+                                                onClick={(e) => handleDelete(task.id, e)}
                                                 className="p-1 text-gray-400 hover:text-red-600"
                                             >
                                                 <Trash2 className="h-4 w-4" />
