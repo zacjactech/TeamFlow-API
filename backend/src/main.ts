@@ -26,7 +26,30 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger });
 
   // Security
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: [`'self'`],
+          scriptSrc: [
+            `'self'`,
+            `'unsafe-inline'`,
+            `'unsafe-eval'`,
+            'https://cdnjs.cloudflare.com',
+          ],
+          styleSrc: [
+            `'self'`,
+            `'unsafe-inline'`,
+            'https://cdnjs.cloudflare.com',
+            'https://fonts.googleapis.com',
+          ],
+          fontSrc: [`'self'`, 'https://fonts.gstatic.com'],
+          imgSrc: [`'self'`, 'data:', 'https://validator.swagger.io'],
+          connectSrc: [`'self'`],
+        },
+      },
+    }),
+  );
   app.use(compression());
 
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
@@ -72,7 +95,14 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    customCssUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+    customJs: [
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
+    ],
+  });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

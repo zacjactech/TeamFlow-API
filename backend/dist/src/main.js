@@ -55,7 +55,28 @@ async function bootstrap() {
         ],
     });
     const app = await core_1.NestFactory.create(app_module_1.AppModule, { logger });
-    app.use((0, helmet_1.default)());
+    app.use((0, helmet_1.default)({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: [`'self'`],
+                scriptSrc: [
+                    `'self'`,
+                    `'unsafe-inline'`,
+                    `'unsafe-eval'`,
+                    'https://cdnjs.cloudflare.com',
+                ],
+                styleSrc: [
+                    `'self'`,
+                    `'unsafe-inline'`,
+                    'https://cdnjs.cloudflare.com',
+                    'https://fonts.googleapis.com',
+                ],
+                fontSrc: [`'self'`, 'https://fonts.gstatic.com'],
+                imgSrc: [`'self'`, 'data:', 'https://validator.swagger.io'],
+                connectSrc: [`'self'`],
+            },
+        },
+    }));
     app.use((0, compression_1.default)());
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
         'http://127.0.0.1:3001',
@@ -90,7 +111,13 @@ async function bootstrap() {
         .addBearerAuth()
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
-    swagger_1.SwaggerModule.setup('api/docs', app, document);
+    swagger_1.SwaggerModule.setup('api/docs', app, document, {
+        customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+        customJs: [
+            'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
+        ],
+    });
     const port = process.env.PORT || 3000;
     await app.listen(port);
     console.log(`Application is running on: http://localhost:${port}/api/v1`);
