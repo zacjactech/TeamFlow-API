@@ -29,12 +29,12 @@ let TasksService = class TasksService {
             },
             include: {
                 creator: {
-                    select: { id: true, email: true }
+                    select: { id: true, email: true },
                 },
                 assignee: {
-                    select: { id: true, email: true }
-                }
-            }
+                    select: { id: true, email: true },
+                },
+            },
         });
     }
     async findAllInOrg(organizationId) {
@@ -63,7 +63,7 @@ let TasksService = class TasksService {
             include: {
                 creator: { select: { id: true, email: true } },
                 assignee: { select: { id: true, email: true } },
-            }
+            },
         });
         if (!task || task.organization_id !== organizationId) {
             throw new common_1.NotFoundException('Task not found');
@@ -78,7 +78,7 @@ let TasksService = class TasksService {
             include: {
                 creator: { select: { id: true, email: true } },
                 assignee: { select: { id: true, email: true } },
-            }
+            },
         });
     }
     async remove(id, organizationId, userRole) {

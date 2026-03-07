@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import * as bcrypt from 'bcrypt';
@@ -6,7 +10,7 @@ import { Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async inviteMember(dto: InviteMemberDto, organizationId: string) {
     const existingUser = await this.prisma.user.findUnique({

@@ -18,7 +18,7 @@ import {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) { }
+  constructor(private usersService: UsersService) {}
 
   @Get()
   @Roles(Role.ADMIN)
@@ -31,8 +31,13 @@ export class UsersController {
 
   @Post('invite')
   @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Invite/Add a new member to the organization (Admin only)' })
-  @ApiResponse({ status: 201, description: 'User successfully created/invited' })
+  @ApiOperation({
+    summary: 'Invite/Add a new member to the organization (Admin only)',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'User successfully created/invited',
+  })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 409, description: 'Conflict - User already exists' })
   invite(

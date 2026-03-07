@@ -3,7 +3,9 @@ export default () => {
   const jwtSecret = process.env.JWT_SECRET;
 
   if (isProduction && (!jwtSecret || jwtSecret === 'super-secret-key')) {
-    console.error('FATAL: JWT_SECRET must be set to a secure value in production!');
+    console.error(
+      'FATAL: JWT_SECRET must be set to a secure value in production!',
+    );
     process.exit(1);
   }
 

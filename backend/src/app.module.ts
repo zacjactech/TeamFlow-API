@@ -32,4 +32,4 @@ import configuration from './config/configuration';
   controllers: [AppController, HealthController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

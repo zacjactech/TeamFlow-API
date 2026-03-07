@@ -55,6 +55,9 @@ async function bootstrap() {
         ],
     });
     const app = await core_1.NestFactory.create(app_module_1.AppModule, { logger });
+    const allowedOrigins = (process.env.ALLOWED_ORIGINS?.split(',') || ['http://127.0.0.1:3001'])
+        .map((origin) => origin.trim())
+        .filter(Boolean);
     app.use((0, helmet_1.default)({
         contentSecurityPolicy: {
             directives: {
@@ -73,25 +76,26 @@ async function bootstrap() {
                 ],
                 fontSrc: [`'self'`, 'https://fonts.gstatic.com'],
                 imgSrc: [`'self'`, 'data:', 'https://validator.swagger.io'],
-                connectSrc: [`'self'`],
+                connectSrc: [`'self'`, ...allowedOrigins],
             },
         },
     }));
     app.use((0, compression_1.default)());
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-        'http://127.0.0.1:3001',
-    ];
     app.enableCors({
         origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
+            if (!origin ||
+                allowedOrigins.includes(origin) ||
+                allowedOrigins.includes('*')) {
                 callback(null, true);
             }
             else {
                 console.log('Blocked Origin:', origin);
-                callback(new Error('Not allowed by CORS'));
+                callback(null, false);
             }
         },
         credentials: true,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        allowedHeaders: 'Content-Type, Accept, Authorization',
     });
     app.setGlobalPrefix('api/v1', {
         exclude: ['health'],
@@ -104,6 +108,16 @@ async function bootstrap() {
     const httpAdapterHost = app.get(core_1.HttpAdapterHost);
     app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter(httpAdapterHost));
     app.useGlobalInterceptors(new transform_interceptor_1.TransformInterceptor());
+    const SWAGGER_PATH = 'api/docs';
+    app.use(`/${SWAGGER_PATH}/swagger-ui-bundle.js`, (_req, res) => {
+        res.redirect('https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js');
+    });
+    app.use(`/${SWAGGER_PATH}/swagger-ui-standalone-preset.js`, (_req, res) => {
+        res.redirect('https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js');
+    });
+    app.use(`/${SWAGGER_PATH}/swagger-ui.css`, (_req, res) => {
+        res.redirect('https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css');
+    });
     const config = new swagger_1.DocumentBuilder()
         .setTitle('TeamFlow API')
         .setDescription('Scalable REST API with Auth, RBAC and Multi-tenancy')
@@ -111,7 +125,7 @@ async function bootstrap() {
         .addBearerAuth()
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
-    swagger_1.SwaggerModule.setup('api/docs', app, document, {
+    swagger_1.SwaggerModule.setup(SWAGGER_PATH, app, document, {
         customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
         customJs: [
             'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',

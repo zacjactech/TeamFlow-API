@@ -52,8 +52,13 @@ __decorate([
 __decorate([
     (0, common_1.Post)('invite'),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: 'Invite/Add a new member to the organization (Admin only)' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'User successfully created/invited' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Invite/Add a new member to the organization (Admin only)',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'User successfully created/invited',
+    }),
     (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden' }),
     (0, swagger_1.ApiResponse)({ status: 409, description: 'Conflict - User already exists' }),
     __param(0, (0, common_1.Body)()),

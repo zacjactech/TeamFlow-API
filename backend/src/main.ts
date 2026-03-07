@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { Request, Response } from 'express';
 
 async function bootstrap() {
   const logger = WinstonModule.createLogger({
@@ -24,6 +25,12 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.create(AppModule, { logger });
+
+  const allowedOrigins = (
+    process.env.ALLOWED_ORIGINS?.split(',') || ['http://127.0.0.1:3001']
+  )
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   // Security
   app.use(
@@ -45,28 +52,32 @@ async function bootstrap() {
           ],
           fontSrc: [`'self'`, 'https://fonts.gstatic.com'],
           imgSrc: [`'self'`, 'data:', 'https://validator.swagger.io'],
-          connectSrc: [`'self'`],
+          connectSrc: [`'self'`, ...allowedOrigins],
         },
       },
     }),
   );
   app.use(compression());
 
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-    'http://127.0.0.1:3001',
-
-  ];
-
   app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        allowedOrigins.includes('*')
+      ) {
         callback(null, true);
       } else {
         console.log('Blocked Origin:', origin);
-        callback(new Error('Not allowed by CORS'));
+        callback(null, false);
       }
     },
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   // Versioning
@@ -88,6 +99,31 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
 
   // Swagger Documentation
+  const SWAGGER_PATH = 'api/docs';
+
+  // Redirect Swagger UI assets to CDN to resolve MIME type issues on Vercel
+  app.use(
+    `/${SWAGGER_PATH}/swagger-ui-bundle.js`,
+    (_req: Request, res: Response) => {
+      res.redirect(
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
+      );
+    },
+  );
+  app.use(
+    `/${SWAGGER_PATH}/swagger-ui-standalone-preset.js`,
+    (_req: Request, res: Response) => {
+      res.redirect(
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
+      );
+    },
+  );
+  app.use(`/${SWAGGER_PATH}/swagger-ui.css`, (_req: Request, res: Response) => {
+    res.redirect(
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+    );
+  });
+
   const config = new DocumentBuilder()
     .setTitle('TeamFlow API')
     .setDescription('Scalable REST API with Auth, RBAC and Multi-tenancy')
@@ -95,7 +131,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document, {
+  SwaggerModule.setup(SWAGGER_PATH, app, document, {
     customCssUrl:
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
     customJs: [
